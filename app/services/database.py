@@ -12,7 +12,7 @@ from app.models.document import Document
 
 logger = logging.getLogger(__name__)
 
-class DatabaseService::
+class DatabaseService:
     
     def __init__(self):
         """Initialize database service with MongoDB collections."""

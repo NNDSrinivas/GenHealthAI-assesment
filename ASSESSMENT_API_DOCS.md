@@ -1,17 +1,17 @@
-# GenHealth.AI Assessment - API Documentation
+# GenHealth.AI Assessment API
 
-## 🌐 Public API URL
-**Your ngrok URL:** `https://your-ngrok-url.ngrok.io`
+## Production API URL
+Deploy to cloud platform for public access.
 
-## 📋 Assessment Requirements Checklist
+## Assessment Requirements
 
-### ✅ Required Features Implemented:
+### Implemented Features:
 
-1. **Order Entity CRUD Operations**
+1. **Order CRUD Operations**
 2. **PDF Document Upload with OCR**
 3. **Patient Data Extraction (First Name, Last Name, DOB)**
 4. **Database Persistence & Activity Logging**
-5. **Public Deployment**
+5. **Public Cloud Deployment**
 
 ---
 

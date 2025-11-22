@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 import uuid
 
-class Order::
+class Order:
     
     STATUS_PENDING = 'pending'
     STATUS_PROCESSING = 'processing'

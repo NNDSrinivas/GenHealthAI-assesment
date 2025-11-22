@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 import uuid
 import os
 
-class Document::
+class Document:
     
     STATUS_UPLOADED = 'uploaded'
     STATUS_PROCESSING = 'processing'

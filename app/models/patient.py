@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 import uuid
 
-class Patient::
+class Patient:
     
     def __init__(self, first_name: Optional[str] = None, last_name: Optional[str] = None, 
                  date_of_birth: Optional[str] = None, extracted_from: Optional[str] = None):
