@@ -1,0 +1,422 @@
+from flask import Blueprint, request, jsonify, current_app
+from marshmallow import Schema, fields, ValidationError
+from typing import Dict, Any
+import logging
+
+from app.models.order import Order
+from app.services.database import db_service
+
+logger = logging.getLogger(__name__)
+
+# Create blueprint for orders API
+orders_bp = Blueprint('orders', __name__)
+
+class OrderSchema(Schema):
+    """Schema for order validation and serialization."""
+    patient_id = fields.Str(required=False, allow_none=True, load_default=None)
+    order_type = fields.Str(required=False, allow_none=True, load_default='general')
+    description = fields.Str(required=False, allow_none=True, load_default=None)
+    status = fields.Str(required=False, allow_none=True, validate=lambda x: x in Order.VALID_STATUSES)
+    documents = fields.List(fields.Str(), required=False, load_default=list)
+
+class OrderUpdateSchema(Schema):
+    """Schema for order updates."""
+    patient_id = fields.Str(required=False, allow_none=True)
+    order_type = fields.Str(required=False, allow_none=True)
+    description = fields.Str(required=False, allow_none=True)
+    status = fields.Str(required=False, allow_none=True, validate=lambda x: x in Order.VALID_STATUSES)
+
+order_schema = OrderSchema()
+order_update_schema = OrderUpdateSchema()
+
+@orders_bp.route('', methods=['GET'])
+def get_orders():
+    """
+    Get list of orders with pagination.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: skip
+        in: query
+        type: integer
+        default: 0
+        description: Number of orders to skip
+      - name: limit
+        in: query
+        type: integer
+        default: 10
+        description: Maximum number of orders to return
+    responses:
+      200:
+        description: List of orders
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+              items:
+                type: object
+            total:
+              type: integer
+      500:
+        description: Server error
+    """
+    try:
+        # Get pagination parameters
+        skip = request.args.get('skip', 0, type=int)
+        limit = min(request.args.get('limit', 10, type=int), 100)  # Max 100 items
+        
+        # Retrieve orders from database
+        orders = db_service.get_orders(skip=skip, limit=limit)
+        
+        # Convert to dictionaries
+        orders_data = [order.to_dict() for order in orders]
+        
+        return jsonify({
+            'success': True,
+            'data': orders_data,
+            'total': len(orders_data),
+            'skip': skip,
+            'limit': limit
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error retrieving orders: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to retrieve orders',
+            'message': str(e)
+        }), 500
+
+@orders_bp.route('', methods=['POST'])
+def create_order():
+    """
+    Create a new order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            patient_id:
+              type: string
+              description: ID of associated patient
+            order_type:
+              type: string
+              description: Type of order
+              default: general
+            description:
+              type: string
+              description: Order description
+            documents:
+              type: array
+              items:
+                type: string
+              description: List of document IDs
+    responses:
+      201:
+        description: Order created successfully
+      400:
+        description: Invalid request data
+      500:
+        description: Server error
+    """
+    try:
+        # Validate request data
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({
+                'success': False,
+                'error': 'No JSON data provided'
+            }), 400
+        # Validate input schema
+        try:
+            validated_data = order_schema.load(json_data)
+            if not isinstance(validated_data, dict):
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid data format'
+                }), 400
+        except ValidationError as err:
+            return jsonify({
+                'success': False,
+                'error': 'Validation failed',
+                'details': err.messages
+            }), 400
+        
+        # Create order object
+        order = Order(
+            patient_id=validated_data.get('patient_id'),
+            order_type=validated_data.get('order_type', 'general'),
+            description=validated_data.get('description'),
+            documents=validated_data.get('documents', [])
+        )
+        
+        # Save to database
+        if db_service.create_order(order):
+            return jsonify({
+                'success': True,
+                'data': order.to_dict(),
+                'message': 'Order created successfully'
+            }), 201
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to create order'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error creating order: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to create order',
+            'message': str(e)
+        }), 500
+
+@orders_bp.route('/<order_id>', methods=['GET'])
+def get_order(order_id):
+    """
+    Get a specific order by ID.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: Order details
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
+    try:
+        # Retrieve order from database
+        order = db_service.get_order(order_id)
+        
+        if not order:
+            return jsonify({
+                'success': False,
+                'error': 'Order not found'
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'data': order.to_dict()
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error retrieving order {order_id}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to retrieve order',
+            'message': str(e)
+        }), 500
+
+@orders_bp.route('/<order_id>', methods=['PUT'])
+def update_order(order_id):
+    """
+    Update an existing order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+      - name: order_updates
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            patient_id:
+              type: string
+            order_type:
+              type: string
+            description:
+              type: string
+            status:
+              type: string
+              enum: [pending, processing, completed, cancelled]
+    responses:
+      200:
+        description: Order updated successfully
+      400:
+        description: Invalid request data
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
+    try:
+        # Check if order exists
+        existing_order = db_service.get_order(order_id)
+        if not existing_order:
+            return jsonify({
+                'success': False,
+                'error': 'Order not found'
+            }), 404
+        
+        # Validate request data
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({
+                'success': False,
+                'error': 'No JSON data provided'
+            }), 400
+        # Validate input schema
+        try:
+            validated_data = order_update_schema.load(json_data)
+        except ValidationError as err:
+            return jsonify({
+                'success': False,
+                'error': 'Validation failed',
+                'details': err.messages
+            }), 400
+        
+        # Ensure validated_data is a dictionary
+        if not isinstance(validated_data, dict):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid data format'
+            }), 400
+        
+        # Update order in database
+        if db_service.update_order(order_id, validated_data):
+            # Retrieve updated order
+            updated_order = db_service.get_order(order_id)
+            if not updated_order:
+                return jsonify({
+                    'success': False,
+                    'error': 'Order updated but could not retrieve updated data'
+                }), 500
+            return jsonify({
+                'success': True,
+                'data': updated_order.to_dict(),
+                'message': 'Order updated successfully'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to update order'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error updating order {order_id}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to update order',
+            'message': str(e)
+        }), 500
+
+@orders_bp.route('/<order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    """
+    Delete an order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: Order deleted successfully
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
+    try:
+        # Check if order exists
+        existing_order = db_service.get_order(order_id)
+        if not existing_order:
+            return jsonify({
+                'success': False,
+                'error': 'Order not found'
+            }), 404
+        
+        # Delete order from database
+        if db_service.delete_order(order_id):
+            return jsonify({
+                'success': True,
+                'message': 'Order deleted successfully'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to delete order'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error deleting order {order_id}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to delete order',
+            'message': str(e)
+        }), 500
+
+@orders_bp.route('/<order_id>/documents', methods=['GET'])
+def get_order_documents(order_id):
+    """
+    Get all documents associated with an order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: List of order documents
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
+    try:
+        # Check if order exists
+        existing_order = db_service.get_order(order_id)
+        if not existing_order:
+            return jsonify({
+                'success': False,
+                'error': 'Order not found'
+            }), 404
+        
+        # Get documents for this order
+        documents = db_service.get_documents_by_order(order_id)
+        documents_data = [doc.to_dict() for doc in documents]
+        
+        return jsonify({
+            'success': True,
+            'data': documents_data,
+            'total': len(documents_data)
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error retrieving documents for order {order_id}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to retrieve order documents',
+            'message': str(e)
+        }), 500
