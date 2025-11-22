@@ -14,8 +14,8 @@ def app():
     app.config['MONGODB_DB_NAME'] = 'clinical_docs_test'
     
     with app.app_context():
-        if hasattr(app, 'db'):
-            db_service.init_db(app.db)
+        # Initialize database service with the app configuration
+        db_service.init_db(app)
     
     yield app
 

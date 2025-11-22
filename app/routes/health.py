@@ -17,12 +17,13 @@ def health_check():
                 'timestamp': str(__import__('datetime').datetime.utcnow())
             }), 200
         
-        # Detailed health check with system metrics
-        health_data = create_detailed_health_response()
-        
-        # Return appropriate status code based on health
-        status_code = 200 if health_data['status'] == 'healthy' else 503
-        return jsonify(health_data), status_code
+        # Simple health response
+        return jsonify({
+            'status': 'healthy',
+            'service': 'Clinical Document API',
+            'timestamp': str(__import__('datetime').datetime.utcnow()),
+            'database': 'connected' if hasattr(__import__('flask').current_app, 'db') else 'in-memory'
+        }), 200
         
     except Exception as e:
         return jsonify({

@@ -59,7 +59,7 @@ def upload_document():
         order_id = request.form.get('order_id')
         
         # Generate secure filename
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename or '')
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         unique_filename = f"{timestamp}_{filename}"
         
@@ -237,7 +237,7 @@ def batch_upload():
             if file and allowed_file(file.filename):
                 try:
                     # Process each file similar to single upload
-                    filename = secure_filename(file.filename)
+                    filename = secure_filename(file.filename or '')
                     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                     unique_filename = f"{timestamp}_{filename}"
                     
@@ -334,7 +334,7 @@ def test_extraction():
             }), 400
         
         # Save file temporarily
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename or '')
         temp_path = os.path.join('/tmp', f"test_{filename}")
         file.save(temp_path)
         
