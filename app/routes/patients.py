@@ -25,9 +25,6 @@ patient_schema = PatientSchema()
 
 @patients_bp.route('', methods=['GET'])
 def get_patients():
-    """
-    Get list of patients with pagination.
-    """
     try:
         # Get pagination parameters
         skip = request.args.get('skip', 0, type=int)
@@ -57,9 +54,6 @@ def get_patients():
 
 @patients_bp.route('/<patient_id>', methods=['GET'])
 def get_patient(patient_id):
-    """
-    Get a specific patient by ID.
-    """
     try:
         # Retrieve patient from database
         patient = db_service.get_patient(patient_id)
@@ -85,9 +79,6 @@ def get_patient(patient_id):
 
 @patients_bp.route('', methods=['POST'])
 def create_patient():
-    """
-    Create a new patient manually (usually patients are created via document processing).
-    """
     try:
         # Validate request data
         json_data = request.get_json()
@@ -137,9 +128,6 @@ def create_patient():
 
 @patients_bp.route('/<patient_id>', methods=['PUT'])
 def update_patient(patient_id):
-    """
-    Update patient information.
-    """
     try:
         # Check if patient exists
         existing_patient = db_service.get_patient(patient_id)
@@ -197,9 +185,6 @@ def update_patient(patient_id):
 
 @patients_bp.route('/search', methods=['GET'])
 def search_patients():
-    """
-    Search patients by name or other criteria.
-    """
     try:
         first_name = request.args.get('first_name')
         last_name = request.args.get('last_name')

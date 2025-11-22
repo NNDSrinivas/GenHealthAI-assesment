@@ -12,11 +12,7 @@ from app.models.document import Document
 
 logger = logging.getLogger(__name__)
 
-class DatabaseService:
-    """
-    MongoDB database service for managing patients, orders, and documents.
-    Provides CRUD operations and business logic for clinical document processing.
-    """
+class DatabaseService::
     
     def __init__(self):
         """Initialize database service with MongoDB collections."""

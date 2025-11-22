@@ -11,7 +11,6 @@ from datetime import datetime
 load_dotenv()
 
 def create_app():
-    """Application factory pattern for Flask app creation."""
     app = Flask(__name__)
     
     # Production Configuration
@@ -54,7 +53,6 @@ def create_app():
     return app
 
 def setup_logging():
-    """Configure application logging."""
     log_level = os.getenv('LOG_LEVEL', 'INFO')
     log_file = os.getenv('LOG_FILE', 'logs/app.log')
     
@@ -71,7 +69,6 @@ def setup_logging():
     )
 
 def init_database(app):
-    """Initialize MongoDB connection."""
     mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
     db_name = os.getenv('MONGODB_DB_NAME', 'clinical_docs')
     
@@ -92,7 +89,6 @@ def init_database(app):
         app.db = None
 
 def setup_middleware(app):
-    """Setup request/response middleware."""
     @app.before_request
     def log_request_info():
         if request.endpoint not in ['health.health_check', 'static']:
@@ -139,7 +135,6 @@ def setup_error_handlers(app):
         }), 413
 
 def setup_api_routes(app):
-    """Setup main API information routes."""
     @app.route('/')
     def api_root():
         return render_template('index.html')
@@ -164,7 +159,6 @@ def setup_api_routes(app):
         })
 
 def register_blueprints(app):
-    """Register application blueprints."""
     from app.routes.orders import orders_bp
     from app.routes.documents import documents_bp
     from app.routes.patients import patients_bp

@@ -3,8 +3,7 @@ from typing import Dict, Any, Optional, List
 import uuid
 import os
 
-class Document:
-    """Document model for managing uploaded and processed documents."""
+class Document::
     
     STATUS_UPLOADED = 'uploaded'
     STATUS_PROCESSING = 'processing'
@@ -87,7 +86,6 @@ class Document:
         return doc
     
     def update_status(self, new_status: str, error_message: Optional[str] = None):
-        """Update document processing status."""
         if new_status not in self.VALID_STATUSES:
             raise ValueError(f"Invalid status: {new_status}. Must be one of {self.VALID_STATUSES}")
         
@@ -109,7 +107,6 @@ class Document:
         self.updated_at = datetime.utcnow()
     
     def get_file_size(self):
-        """Calculate and update file size."""
         if self.file_path and os.path.exists(self.file_path):
             self.file_size = os.path.getsize(self.file_path)
             return self.file_size

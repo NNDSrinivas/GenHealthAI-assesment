@@ -10,8 +10,7 @@ from app.models.document import Document
 
 logger = logging.getLogger(__name__)
 
-class InMemoryDatabase:
-    """In-memory database for testing purposes."""
+class InMemoryDatabase::
     
     def __init__(self):
         self.patients = {}

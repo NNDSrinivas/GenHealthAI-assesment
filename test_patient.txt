@@ -1,9 +1,0 @@
-PATIENT INFORMATION DOCUMENT
-
-First Name: John
-Last Name: Doe
-Date of Birth: 05/15/1990
-Medical Record Number: MRN-12345
-
-This is a test document for clinical document processing.
-The OCR system should extract the patient's name and date of birth.

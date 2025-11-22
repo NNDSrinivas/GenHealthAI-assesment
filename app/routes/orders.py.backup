@@ -58,6 +58,41 @@ def get_orders():
 
 @orders_bp.route('', methods=['POST'])
 def create_order():
+    """
+    Create a new order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            patient_id:
+              type: string
+              description: ID of associated patient
+            order_type:
+              type: string
+              description: Type of order
+              default: general
+            description:
+              type: string
+              description: Order description
+            documents:
+              type: array
+              items:
+                type: string
+              description: List of document IDs
+    responses:
+      201:
+        description: Order created successfully
+      400:
+        description: Invalid request data
+      500:
+        description: Server error
+    """
     try:
         # Validate request data
         json_data = request.get_json()
@@ -112,6 +147,25 @@ def create_order():
 
 @orders_bp.route('/<order_id>', methods=['GET'])
 def get_order(order_id):
+    """
+    Get a specific order by ID.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: Order details
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
     try:
         # Retrieve order from database
         order = db_service.get_order(order_id)
@@ -137,6 +191,42 @@ def get_order(order_id):
 
 @orders_bp.route('/<order_id>', methods=['PUT'])
 def update_order(order_id):
+    """
+    Update an existing order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+      - name: order_updates
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            patient_id:
+              type: string
+            order_type:
+              type: string
+            description:
+              type: string
+            status:
+              type: string
+              enum: [pending, processing, completed, cancelled]
+    responses:
+      200:
+        description: Order updated successfully
+      400:
+        description: Invalid request data
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
     try:
         # Check if order exists
         existing_order = db_service.get_order(order_id)
@@ -200,6 +290,25 @@ def update_order(order_id):
 
 @orders_bp.route('/<order_id>', methods=['DELETE'])
 def delete_order(order_id):
+    """
+    Delete an order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: Order deleted successfully
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
     try:
         # Check if order exists
         existing_order = db_service.get_order(order_id)
@@ -231,6 +340,25 @@ def delete_order(order_id):
 
 @orders_bp.route('/<order_id>/documents', methods=['GET'])
 def get_order_documents(order_id):
+    """
+    Get all documents associated with an order.
+    ---
+    tags:
+      - Orders
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        type: string
+        description: Order ID
+    responses:
+      200:
+        description: List of order documents
+      404:
+        description: Order not found
+      500:
+        description: Server error
+    """
     try:
         # Check if order exists
         existing_order = db_service.get_order(order_id)

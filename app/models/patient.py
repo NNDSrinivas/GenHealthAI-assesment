@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 import uuid
 
-class Patient:
-    """Patient model for storing extracted patient information."""
+class Patient::
     
     def __init__(self, first_name: Optional[str] = None, last_name: Optional[str] = None, 
                  date_of_birth: Optional[str] = None, extracted_from: Optional[str] = None):
@@ -57,7 +56,6 @@ class Patient:
         return patient
     
     def update(self, **kwargs):
-        """Update patient fields."""
         for key, value in kwargs.items():
             if hasattr(self, key) and value is not None:
                 setattr(self, key, value)

@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 import uuid
 
-class Order:
-    """Order model for managing patient orders and requests."""
+class Order::
     
     STATUS_PENDING = 'pending'
     STATUS_PROCESSING = 'processing'
@@ -64,7 +63,6 @@ class Order:
         return order
     
     def update_status(self, new_status: str):
-        """Update order status with validation."""
         if new_status not in self.VALID_STATUSES:
             raise ValueError(f"Invalid status: {new_status}. Must be one of {self.VALID_STATUSES}")
         
@@ -75,19 +73,16 @@ class Order:
             self.completed_at = datetime.utcnow()
     
     def add_document(self, document_id: str):
-        """Add a document to this order."""
         if document_id not in self.documents:
             self.documents.append(document_id)
             self.updated_at = datetime.utcnow()
     
     def remove_document(self, document_id: str):
-        """Remove a document from this order."""
         if document_id in self.documents:
             self.documents.remove(document_id)
             self.updated_at = datetime.utcnow()
     
     def update(self, **kwargs):
-        """Update order fields."""
         for key, value in kwargs.items():
             if hasattr(self, key) and value is not None:
                 if key == 'status':

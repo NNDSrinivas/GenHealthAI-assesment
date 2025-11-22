@@ -22,17 +22,11 @@ doc_processor = DocumentProcessor(
 )
 
 def allowed_file(filename):
-    """Check if file extension is allowed."""
     allowed_extensions = {'pdf', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'docx'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 @documents_bp.route('/upload', methods=['POST'])
 def upload_document():
-    """
-    Upload and process a document to extract patient information.
-    This endpoint accepts PDF, image, and DOCX files and uses OCR to extract
-    patient data including first name, last name, and date of birth.
-    """
     try:
         # Check if file was uploaded
         if 'file' not in request.files:
@@ -181,7 +175,6 @@ def upload_document():
 
 @documents_bp.route('/<document_id>', methods=['GET'])
 def get_document(document_id):
-    """Get document details and processing results."""
     try:
         # Retrieve document from database
         document = db_service.get_document(document_id)
@@ -207,10 +200,6 @@ def get_document(document_id):
 
 @documents_bp.route('/batch', methods=['POST'])
 def batch_upload():
-    """
-    Upload multiple documents for batch processing.
-    Simulates batch processing capabilities for large document volumes.
-    """
     try:
         # Check if files were uploaded
         if 'files' not in request.files:
@@ -309,10 +298,6 @@ def batch_upload():
 
 @documents_bp.route('/test', methods=['POST'])
 def test_extraction():
-    """
-    Test endpoint for document processing without saving to database.
-    Useful for testing OCR capabilities with the assessment sample PDF.
-    """
     try:
         if 'file' not in request.files:
             return jsonify({

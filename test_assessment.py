@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
-"""
-API Testing Script for GenHealth.AI Assessment
-Tests all required endpoints for the assessment
-"""
 
 import requests
 import json
 import time
 from pathlib import Path
 
-
-BASE_URL = "https://unadjourned-gentling-dolly.ngrok-free.dev"  # Public ngrok URL
+BASE_URL = "http://127.0.0.1:3000" 
 
 def test_health_check():
-    """Test the health endpoint"""
     print("🔍 Testing Health Check...")
     try:
         response = requests.get(f"{BASE_URL}/health")
@@ -24,7 +18,6 @@ def test_health_check():
         return False
 
 def test_order_crud():
-    """Test Order CRUD operations"""
     print("\n🔍 Testing Order CRUD Operations...")
     
     # Create Order
@@ -66,7 +59,6 @@ def test_order_crud():
         return False
 
 def test_pdf_upload():
-    """Test PDF document upload and processing"""
     print("\n🔍 Testing PDF Upload and OCR Processing...")
     
     # You can test with the sample PDF from the Google Drive link
@@ -95,7 +87,6 @@ def test_pdf_upload():
         return False
 
 def test_activity_logging():
-    """Test activity logging endpoint"""
     print("\n🔍 Testing Activity Logging...")
     
     try:
@@ -107,7 +98,6 @@ def test_activity_logging():
         return False
 
 def main():
-    """Run all tests"""
     print("🚀 Starting GenHealth.AI API Assessment Tests")
     print(f"🌐 Base URL: {BASE_URL}")
     print("=" * 60)

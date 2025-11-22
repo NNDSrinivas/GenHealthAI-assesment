@@ -13,13 +13,8 @@ from docx import Document as DocxDocument
 logger = logging.getLogger(__name__)
 
 class DocumentProcessor:
-    """
-    Advanced document processing service using OCR for clinical documents.
-    Handles multiple file formats and extracts structured patient data.
-    """
     
     def __init__(self, tesseract_path: Optional[str] = None, poppler_path: Optional[str] = None):
-        """Initialize the document processor with OCR configurations."""
         if tesseract_path:
             pytesseract.pytesseract.tesseract_cmd = tesseract_path
         

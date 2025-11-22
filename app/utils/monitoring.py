@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 import subprocess
 
 def get_system_health():
-    """Get comprehensive system health metrics."""
     try:
         # System metrics
         cpu_percent = psutil.cpu_percent(interval=1)
@@ -49,7 +48,6 @@ def get_system_health():
         return {'error': f'Failed to get system metrics: {str(e)}'}
 
 def check_dependencies():
-    """Check if all required dependencies are available."""
     dependencies = {}
     
     # Check Tesseract OCR
@@ -95,7 +93,6 @@ def check_dependencies():
     return dependencies
 
 def create_detailed_health_response():
-    """Create comprehensive health check response."""
     start_time = datetime.utcnow()
     
     # Basic health info
@@ -132,7 +129,6 @@ def create_detailed_health_response():
     return health_data
 
 def get_uptime():
-    """Get application uptime."""
     try:
         with open('/proc/uptime', 'r') as f:
             uptime_seconds = float(f.readline().split()[0])
