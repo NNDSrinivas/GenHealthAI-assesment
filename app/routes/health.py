@@ -1,18 +1,36 @@
 import os
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from app.utils.monitoring import create_detailed_health_response
 
 # Health check blueprint
 health_bp = Blueprint('health', __name__)
 
 @health_bp.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint for monitoring and deployment."""
-    return jsonify({
-        'status': 'healthy',
-        'service': 'Clinical Document Processing API',
-        'version': '1.0.0',
-        'timestamp': str(__import__('datetime').datetime.utcnow())
-    }), 200
+    """Advanced health check endpoint for AWS load balancers and monitoring."""
+    try:
+        # Basic health check for load balancers (fast response)
+        if request.args.get('simple') == 'true':
+            return jsonify({
+                'status': 'healthy',
+                'service': 'GenHealth.AI Clinical Document API',
+                'timestamp': str(__import__('datetime').datetime.utcnow())
+            }), 200
+        
+        # Detailed health check with system metrics
+        health_data = create_detailed_health_response()
+        
+        # Return appropriate status code based on health
+        status_code = 200 if health_data['status'] == 'healthy' else 503
+        return jsonify(health_data), status_code
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'service': 'GenHealth.AI Clinical Document API',
+            'error': str(e),
+            'timestamp': str(__import__('datetime').datetime.utcnow())
+        }), 503
 
 @health_bp.route('/info', methods=['GET'])
 def api_info():

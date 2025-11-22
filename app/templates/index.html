@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenHealth.AI Clinical Document Processing API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .api-section {
+            margin-bottom: 40px;
+        }
+        
+        .api-section h2 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .endpoint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .endpoint-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .method.get { background: #007bff; }
+        .method.post { background: #28a745; }
+        .method.put { background: #ffc107; color: #333; }
+        .method.delete { background: #dc3545; }
+        
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-item {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .test-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn-info { background: #17a2b8; }
+        .btn-info:hover { background: #138496; }
+        
+        .response-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .timestamp {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 GenHealth.AI</h1>
+            <p>Clinical Document Processing API with OCR Capabilities</p>
+        </div>
+        
+        <div class="content">
+            <div class="status-card">
+                <h2><span class="status-indicator"></span>API Status: <span id="api-status">Checking...</span></h2>
+                <p>Server is running and ready to process requests</p>
+            </div>
+            
+            <div class="api-section">
+                <h2>📋 CRUD Operations - Orders</h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>List All Orders</strong>
+                        <div class="endpoint-url">/api/orders</div>
+                        <p>Retrieve all orders with pagination support</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method post">POST</span>
+                        <strong>Create Order</strong>
+                        <div class="endpoint-url">/api/orders</div>
+                        <p>Create a new medical order with patient details</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>Get Order</strong>
+                        <div class="endpoint-url">/api/orders/{id}</div>
+                        <p>Retrieve a specific order by ID</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method put">PUT</span>
+                        <strong>Update Order</strong>
+                        <div class="endpoint-url">/api/orders/{id}</div>
+                        <p>Update an existing order</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method delete">DELETE</span>
+                        <strong>Delete Order</strong>
+                        <div class="endpoint-url">/api/orders/{id}</div>
+                        <p>Remove an order from the system</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="api-section">
+                <h2>🔍 OCR Document Processing</h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint-card">
+                        <span class="method post">POST</span>
+                        <strong>Upload Document</strong>
+                        <div class="endpoint-url">/api/documents/upload</div>
+                        <p>Upload clinical document for OCR processing. Extracts patient First name, Last name, and Date of birth automatically.</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>List Documents</strong>
+                        <div class="endpoint-url">/api/documents</div>
+                        <p>Retrieve all processed documents</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="api-section">
+                <h2>👥 Patient Management & Activity Logs</h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>List Patients</strong>
+                        <div class="endpoint-url">/api/patients</div>
+                        <p>View all patients extracted from documents</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>Activity Logs</strong>
+                        <div class="endpoint-url">/api/activities</div>
+                        <p>View all user activities and system logs</p>
+                    </div>
+                    <div class="endpoint-card">
+                        <span class="method get">GET</span>
+                        <strong>Health Check</strong>
+                        <div class="endpoint-url">/health</div>
+                        <p>System health and performance metrics</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="api-section">
+                <h2>✨ Key Features</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <strong>🔍 OCR Processing</strong><br>
+                        Advanced Tesseract OCR integration for clinical documents
+                    </div>
+                    <div class="feature-item">
+                        <strong>👤 Patient Data Extraction</strong><br>
+                        Automatically extracts First name, Last name, Date of birth
+                    </div>
+                    <div class="feature-item">
+                        <strong>📊 CRUD Operations</strong><br>
+                        Complete REST API for Order entity management
+                    </div>
+                    <div class="feature-item">
+                        <strong>📝 Activity Logging</strong><br>
+                        Comprehensive logging of all user activities
+                    </div>
+                    <div class="feature-item">
+                        <strong>🗄️ Database Persistence</strong><br>
+                        MongoDB integration with in-memory fallback
+                    </div>
+                    <div class="feature-item">
+                        <strong>🚀 Production Ready</strong><br>
+                        Security headers, CORS, error handling, monitoring
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h3>🧪 Test API Endpoints</h3>
+                <p>Click the buttons below to test the API endpoints and see live responses:</p>
+                
+                <button class="btn" onclick="testEndpoint('/health')">Test Health Check</button>
+                <button class="btn" onclick="testEndpoint('/info')">API Info</button>
+                <button class="btn btn-info" onclick="testEndpoint('/api/orders')">List Orders</button>
+                <button class="btn btn-info" onclick="testEndpoint('/api/patients')">List Patients</button>
+                <button class="btn btn-info" onclick="testEndpoint('/api/activities')">Activity Logs</button>
+                
+                <div id="response" class="response-area" style="display: none;"></div>
+            </div>
+            
+            <div class="timestamp">
+                <p>API Documentation - Generated on <span id="current-time"></span></p>
+                <p>🚀 Ready for deployment on Railway, Render, AWS, or Heroku</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Update current time
+        document.getElementById('current-time').textContent = new Date().toLocaleString();
+        
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    document.getElementById('api-status').textContent = 'ONLINE ✅';
+                    document.querySelector('.status-card').style.borderColor = '#28a745';
+                } else {
+                    document.getElementById('api-status').textContent = 'ERROR ❌';
+                    document.querySelector('.status-card').style.borderColor = '#dc3545';
+                }
+            } catch (error) {
+                document.getElementById('api-status').textContent = 'OFFLINE ❌';
+                document.querySelector('.status-card').style.borderColor = '#dc3545';
+            }
+        }
+        
+        // Test API endpoint
+        async function testEndpoint(endpoint) {
+            const responseArea = document.getElementById('response');
+            responseArea.style.display = 'block';
+            responseArea.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                responseArea.textContent = `Status: ${response.status}\nEndpoint: ${endpoint}\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseArea.textContent = `Error testing ${endpoint}:\n${error.message}`;
+            }
+        }
+        
+        // Check status on page load
+        checkApiStatus();
+        
+        // Refresh status every 30 seconds
+        setInterval(checkApiStatus, 30000);
+    </script>
+</body>
+</html>

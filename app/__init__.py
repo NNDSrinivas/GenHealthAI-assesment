@@ -1,9 +1,11 @@
 import os
-from flask import Flask
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import logging
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -12,22 +14,39 @@ def create_app():
     """Application factory pattern for Flask app creation."""
     app = Flask(__name__)
     
-    # Configuration
+    # Production Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
     app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
+    app.config['JSON_SORT_KEYS'] = False
+    app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
     
-    # Enable CORS for all routes
-    CORS(app)
+    # Enable CORS with production settings
+    CORS(app, 
+         origins=['*'] if os.getenv('FLASK_ENV') == 'development' else [],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
+    
+    # Add proxy fix for AWS load balancers
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     
     # Setup logging
     setup_logging()
+    
+    # Add request/response middleware
+    setup_middleware(app)
+    
+    # Add error handlers
+    setup_error_handlers(app)
     
     # Initialize MongoDB connection
     init_database(app)
     
     # Register blueprints
     register_blueprints(app)
+    
+    # Add API info endpoint
+    setup_api_routes(app)
     
     # Create upload directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -71,6 +90,79 @@ def init_database(app):
         # Create a mock database for demonstration
         app.mongo_client = None
         app.db = None
+
+def setup_middleware(app):
+    """Setup request/response middleware."""
+    @app.before_request
+    def log_request_info():
+        if request.endpoint not in ['health.health_check', 'static']:
+            app.logger.info('Request: %s %s from %s', 
+                          request.method, request.url, request.remote_addr)
+    
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY' 
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Server'] = 'GenHealth.AI API'
+        return response
+
+def setup_error_handlers(app):
+    """Setup global error handlers."""
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found',
+            'status': 404,
+            'timestamp': datetime.utcnow().isoformat(),
+            'service': 'GenHealth.AI Clinical Document API'
+        }), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error('Internal error: %s', error)
+        return jsonify({
+            'error': 'Internal Server Error',
+            'message': 'An internal error occurred. Please try again later.',
+            'status': 500,
+            'timestamp': datetime.utcnow().isoformat(),
+            'service': 'GenHealth.AI Clinical Document API'
+        }), 500
+    
+    @app.errorhandler(413)
+    def file_too_large(error):
+        return jsonify({
+            'error': 'File Too Large',
+            'message': 'File size exceeds maximum allowed limit (16MB)',
+            'status': 413,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 413
+
+def setup_api_routes(app):
+    """Setup main API information routes."""
+    @app.route('/')
+    def api_root():
+        return render_template('index.html')
+    
+    @app.route('/api')
+    def api_info():
+        return jsonify({
+            'service': 'GenHealth.AI Clinical Document Processing API',
+            'version': '1.0.0',
+            'status': 'operational',
+            'environment': os.getenv('FLASK_ENV', 'production'),
+            'capabilities': {
+                'document_processing': True,
+                'ocr_extraction': True,
+                'patient_data_extraction': True,
+                'order_management': True,
+                'activity_logging': True
+            },
+            'supported_formats': ['PDF', 'PNG', 'JPG', 'TIFF'],
+            'max_file_size': '16MB',
+            'timestamp': datetime.utcnow().isoformat()
+        })
 
 def register_blueprints(app):
     """Register application blueprints."""
