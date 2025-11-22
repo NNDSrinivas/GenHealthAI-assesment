@@ -1,0 +1,14 @@
+# Vercel Configuration
+{
+  "functions": {
+    "api/*.py": {
+      "runtime": "@vercel/python"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/app.py"
+    }
+  ]
+}
