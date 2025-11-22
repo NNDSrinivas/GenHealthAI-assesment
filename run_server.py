@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple server startup script for local development
+Server startup script
 """
 
 import os

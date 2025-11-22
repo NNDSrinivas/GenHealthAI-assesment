@@ -7,13 +7,13 @@ health_bp = Blueprint('health', __name__)
 
 @health_bp.route('/health', methods=['GET'])
 def health_check():
-    """Advanced health check endpoint for AWS load balancers and monitoring."""
+    """Health check endpoint for monitoring."""
     try:
         # Basic health check for load balancers (fast response)
         if request.args.get('simple') == 'true':
             return jsonify({
                 'status': 'healthy',
-                'service': 'GenHealth.AI Clinical Document API',
+                'service': 'Clinical Document API',
                 'timestamp': str(__import__('datetime').datetime.utcnow())
             }), 200
         
@@ -27,7 +27,7 @@ def health_check():
     except Exception as e:
         return jsonify({
             'status': 'error',
-            'service': 'GenHealth.AI Clinical Document API',
+            'service': 'Clinical Document API',
             'error': str(e),
             'timestamp': str(__import__('datetime').datetime.utcnow())
         }), 503

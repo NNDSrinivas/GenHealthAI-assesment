@@ -192,7 +192,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏥 GenHealth.AI</h1>
+            <h1>GenHealth.AI</h1>
             <p>Clinical Document Processing API with OCR Capabilities</p>
         </div>
         
@@ -203,7 +203,7 @@
             </div>
             
             <div class="api-section">
-                <h2>📋 CRUD Operations - Orders</h2>
+                <h2>CRUD Operations - Orders</h2>
                 <div class="endpoint-grid">
                     <div class="endpoint-card">
                         <span class="method get">GET</span>
@@ -239,7 +239,7 @@
             </div>
             
             <div class="api-section">
-                <h2>🔍 OCR Document Processing</h2>
+                <h2>OCR Document Processing</h2>
                 <div class="endpoint-grid">
                     <div class="endpoint-card">
                         <span class="method post">POST</span>
@@ -257,7 +257,7 @@
             </div>
             
             <div class="api-section">
-                <h2>👥 Patient Management & Activity Logs</h2>
+                <h2>Patient Management & Activity Logs</h2>
                 <div class="endpoint-grid">
                     <div class="endpoint-card">
                         <span class="method get">GET</span>
@@ -281,37 +281,37 @@
             </div>
             
             <div class="api-section">
-                <h2>✨ Key Features</h2>
+                <h2>Key Features</h2>
                 <div class="feature-list">
                     <div class="feature-item">
-                        <strong>🔍 OCR Processing</strong><br>
+                        <strong>OCR Processing</strong><br>
                         Advanced Tesseract OCR integration for clinical documents
                     </div>
                     <div class="feature-item">
-                        <strong>👤 Patient Data Extraction</strong><br>
+                        <strong>Patient Data Extraction</strong><br>
                         Automatically extracts First name, Last name, Date of birth
                     </div>
                     <div class="feature-item">
-                        <strong>📊 CRUD Operations</strong><br>
+                        <strong>CRUD Operations</strong><br>
                         Complete REST API for Order entity management
                     </div>
                     <div class="feature-item">
-                        <strong>📝 Activity Logging</strong><br>
+                        <strong>Activity Logging</strong><br>
                         Comprehensive logging of all user activities
                     </div>
                     <div class="feature-item">
-                        <strong>🗄️ Database Persistence</strong><br>
+                        <strong>Database Persistence</strong><br>
                         MongoDB integration with in-memory fallback
                     </div>
                     <div class="feature-item">
-                        <strong>🚀 Production Ready</strong><br>
+                        <strong>Production Ready</strong><br>
                         Security headers, CORS, error handling, monitoring
                     </div>
                 </div>
             </div>
             
             <div class="test-section">
-                <h3>🧪 Test API Endpoints</h3>
+                <h3>Test API Endpoints</h3>
                 <p>Click the buttons below to test the API endpoints and see live responses:</p>
                 
                 <button class="btn" onclick="testEndpoint('/health')">Test Health Check</button>
@@ -325,7 +325,7 @@
             
             <div class="timestamp">
                 <p>API Documentation - Generated on <span id="current-time"></span></p>
-                <p>🚀 Ready for deployment on Railway, Render, AWS, or Heroku</p>
+                <p>Ready for deployment on Railway, Render, AWS, or Heroku</p>
             </div>
         </div>
     </div>
@@ -339,14 +339,14 @@
             try {
                 const response = await fetch('/health');
                 if (response.ok) {
-                    document.getElementById('api-status').textContent = 'ONLINE ✅';
+                    document.getElementById('api-status').textContent = 'ONLINE';
                     document.querySelector('.status-card').style.borderColor = '#28a745';
                 } else {
-                    document.getElementById('api-status').textContent = 'ERROR ❌';
+                    document.getElementById('api-status').textContent = 'ERROR';
                     document.querySelector('.status-card').style.borderColor = '#dc3545';
                 }
             } catch (error) {
-                document.getElementById('api-status').textContent = 'OFFLINE ❌';
+                document.getElementById('api-status').textContent = 'OFFLINE';
                 document.querySelector('.status-card').style.borderColor = '#dc3545';
             }
         }

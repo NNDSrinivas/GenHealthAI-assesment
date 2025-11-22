@@ -126,8 +126,7 @@ def setup_error_handlers(app):
             'error': 'Internal Server Error',
             'message': 'An internal error occurred. Please try again later.',
             'status': 500,
-            'timestamp': datetime.utcnow().isoformat(),
-            'service': 'GenHealth.AI Clinical Document API'
+            'timestamp': datetime.utcnow().isoformat()
         }), 500
     
     @app.errorhandler(413)

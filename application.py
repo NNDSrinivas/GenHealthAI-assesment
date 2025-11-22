@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Production WSGI Application for AWS Deployment
-GenHealth.AI Clinical Document Processing API
+Production WSGI Application Entry Point
+Clinical Document Processing API
 """
 
 import os
